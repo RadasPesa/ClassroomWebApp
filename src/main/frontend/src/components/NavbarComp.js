@@ -1,10 +1,15 @@
 import React from 'react';
-import { Nav, Navbar, Container } from 'react-bootstrap';
+import { Nav, Navbar } from 'react-bootstrap';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Import from './Import';
 import UploadClassroom from './UploadClassroom';
 
-const NavbarComp = () => {
+const NavbarComp = (props) => {
+
+    function logout() {
+        props.setUserToken("");
+    }
+
     return (
         <Router>
             <div>
@@ -17,13 +22,16 @@ const NavbarComp = () => {
                             <Nav.Link as={Link} to={'/import'}>Import</Nav.Link>
                             <Nav.Link as={Link} to={'/upload'}>Upload</Nav.Link>
                         </Nav>
+                        <Nav className='justify-content-end' style={{ width: "100%" }}>
+                            <Nav.Link onClick={logout}>Log Out</Nav.Link>
+                        </Nav>
                     </Navbar.Collapse>
                 </Navbar>
             </div>
             <div>
                 <Routes>
                     <Route exact path='/' element={
-                        <h1>Hello</h1>
+                        <h1>Hello {props.user}</h1>
                     }>
                     </Route>
                     <Route exact path='/import' element={

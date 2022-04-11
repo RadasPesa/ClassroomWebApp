@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Button, Form } from 'react-bootstrap';
 
 const UploadClassroom = () => {
@@ -13,13 +13,15 @@ const UploadClassroom = () => {
 
     const [validBuildingAbbr, setValidBuildAbrr] = useState(false);
 
+    const formRef = useRef(null);
+
     function handleDepartmentChange(event) {
         setDepartment(event.target.value);
     }
 
     function uploadClassroom(event) {
         event.preventDefault();
-        // TODO: post classroom
+
         const url = 'http://localhost:8080/classroom';
         const body = {
             buildingAbbr: buildingAbbr,
@@ -31,34 +33,24 @@ const UploadClassroom = () => {
         axios.post(url, body)
             .then(response => {
                 console.log("Success: " + response.data);
+                resetForm();
             })
             .catch(error => {
                 console.log("Error: " + error.message);
             })
     }
 
-    function updateBuildingAbbreviation(event) {
-        setBuildingAbbr(event.target.value);
-    }
-
-    function updateClassroomNumber(event) {
-        setClassroomNumber(event.target.value);
-    }
-
-    function updateCapacity(event) {
-        setCapacity(event.target.value);
-    }
-
-    function handleValidBuildingAbbr() {
-        if (buildingAbbr.length > 0) {
-            setValidBuildAbrr(true);
-        } else {
-            setValidBuildAbrr(false);
-        }
+    function resetForm() {
+        formRef.current.reset();
+        setBuildingAbbr("");
+        setClassroomNumber();
+        setCapacity();
+        setDepartment("Select a department");
+        setValidBuildAbrr(false);
     }
 
     useEffect(() => {
-        handleValidBuildingAbbr();
+        setValidBuildAbrr(buildingAbbr.length > 0);
     }, [buildingAbbr]);
 
     useEffect(() => {
@@ -78,14 +70,14 @@ const UploadClassroom = () => {
     return (
         <div>
             <h2>Upload a classroom</h2>
-            <Form onSubmit={uploadClassroom}>
+            <Form onSubmit={uploadClassroom} ref={formRef}>
                 <Form.Group className='mb-3'>
                     <Form.Label>Building abbreviation</Form.Label>
                     <Form.Control
                         required
                         type='text'
                         placeholder='Enter building abbreviation'
-                        onChange={updateBuildingAbbreviation}
+                        onChange={e => setBuildingAbbr(e.target.value)}
                         isValid={validBuildingAbbr}
                     />
                 </Form.Group>
@@ -95,7 +87,7 @@ const UploadClassroom = () => {
                         required
                         type='number'
                         placeholder='Enter classroom number'
-                        onChange={updateClassroomNumber}
+                        onChange={e => setClassroomNumber(e.target.value)}
                     />
                 </Form.Group>
                 <Form.Group className='mb-3'>
@@ -104,14 +96,14 @@ const UploadClassroom = () => {
                         required
                         type='number'
                         placeholder='Enter classroom capacity'
-                        onChange={updateCapacity}
+                        onChange={e => setCapacity(e.target.value)}
                     />
                 </Form.Group>
                 <Form.Group className='mb-3'>
                     <Form.Label>Department</Form.Label>
                     <Form.Select aria-label='Default select example' onChange={handleDepartmentChange}>
                         <option>Select a department</option>
-                        {deps.map((department) => <option value={department}>{department}</option>)}
+                        {deps.map((department) => <option key={department} value={department}>{department}</option>)}
                     </Form.Select>
                 </Form.Group>
                 <Button variant='primary' type='submit'>Insert classroom</Button>
